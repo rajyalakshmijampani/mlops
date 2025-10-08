@@ -1,0 +1,4 @@
+[core]
+    remote = mygcs
+['remote "mygcs"']
+    url = gs://mlops-course-second-capsule-472911-g7-unique/dvcstore
