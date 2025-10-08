@@ -1,13 +1,13 @@
-md5: 281de3850b88dfe6947bf1c8ee7521ce
+md5: 4a7efcf56c3ed584b62fd9f94ec1e4ae
 frozen: true
 deps:
-- checksum: '"4272bb7ee694e1bf9a064e70bb80655705ffc8b851499a697cb76dab3cc1e347"'
-  size: 2606
+- checksum: '"e5505788be79217181bdf9523ffcfe8d9e6bf599b67e887f0156a1de9f2f68a8"'
+  size: 1310
   hash: md5
   path: 
-    https://raw.githubusercontent.com/IITMBSMLOps/ga_resources/refs/heads/week_1/data/v1/data.csv
+    https://raw.githubusercontent.com/IITMBSMLOps/ga_resources/refs/heads/week_1/data/v2/data.csv
 outs:
-- md5: 4954d4088152604322732f13c4e14691
-  size: 2606
+- md5: 95d8300fe0c84c4814f4dd187f7b1627
+  size: 1310
   hash: md5
   path: data.csv
