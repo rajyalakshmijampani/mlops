@@ -35,7 +35,9 @@ jobs:
           export GOOGLE_APPLICATION_CREDENTIALS=/tmp/key.json
             
       - name: Pull data & model
-        run: dvc pull -r mygcs
+        run: |
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/key.json
+          dvc pull -r mygcs --force
 
       - name: Run tests
         run: pytest -v -s tests/test_pipeline.py > report.txt
