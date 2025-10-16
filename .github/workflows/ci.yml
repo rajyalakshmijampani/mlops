@@ -22,10 +22,11 @@ jobs:
       - name: Authenticate GCP
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          PROJECT_ID: ${{ secrets.PROJECT_ID }}
         run: |
           echo "$GCP_SA_KEY" > /tmp/key.json
           gcloud auth activate-service-account --key-file=/tmp/key.json
-          gcloud config set project YOUR_PROJECT_ID
+          gcloud config set project $PROJECT_ID
 
     
       - name: Setup DVC
