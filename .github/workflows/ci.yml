@@ -20,7 +20,7 @@ jobs:
         run: pip install "pip<24.1"
         
       - name: Install dependencies
-        run: pip install "dvc[gs]>=2.25.0" pytest cml joblib pandas scikit-learn
+        run: pip install dvc[gs] pytest cml joblib pandas scikit-learn
     
       - name: Setup DVC
         uses: iterative/setup-dvc@v1
