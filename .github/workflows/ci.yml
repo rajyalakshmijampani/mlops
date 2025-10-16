@@ -19,7 +19,7 @@ jobs:
       # Install DVC using iterative/setup-dvc
       - uses: iterative/setup-dvc@v1
         with:
-          version: 2.45.0
+          version: 3.63.0
     
       - name: Install other dependencies
         run: pip install pytest
