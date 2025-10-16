@@ -19,6 +19,15 @@ jobs:
       - name: Install dependencies
         run: pip install pytest dvc-gs
     
+      - name: Authenticate GCP
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          echo "$GCP_SA_KEY" > /tmp/key.json
+          gcloud auth activate-service-account --key-file=/tmp/key.json
+          gcloud config set project YOUR_PROJECT_ID
+
+    
       - name: Setup DVC
         uses: iterative/setup-dvc@v1
 
