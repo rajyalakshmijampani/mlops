@@ -19,7 +19,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: pip install "dvc[gs]<2.22" pytest cml joblib pandas scikit-learn
+        run: pip install "dvc[gs]==2.22.1" "pytest==8.4.2" "cml==0.11.7" "joblib==1.3.2" "pandas==2.1.1" "scikit-learn==1.3.2"
 
       - name: Pull data & model
         run: dvc pull -r mygcs
