@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup DVC
+        uses: iterative/setup-dvc@v1
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install dvc[gs] pytest cml joblib pandas scikit-learn
+
+      - name: Pull data & model
+        run: dvc pull -r mygcs
+
+      - name: Run tests
+        run: pytest -v -s tests/test_pipeline.py > report.txt
+
+      - name: Post CML comment
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "### ✅ Pytest Report" > report.md
+          cat report.txt >> report.md
+          cml comment create report.md
