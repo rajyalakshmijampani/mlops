@@ -40,7 +40,7 @@ jobs:
           dvc pull -r mygcs --force
 
       - name: Run tests
-        run: pytest -v -s tests/test_pipeline.py > report.txt
+        run: pytest -v -s tests/test_pipeline.py
 
       - name: Post CML comment
         env:
