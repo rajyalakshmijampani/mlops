@@ -16,8 +16,11 @@ jobs:
         with:
           python-version: '3.10'
     
+      - name: Downgrade pip
+        run: pip install "pip==25.2"
+        
       - name: Install dependencies
-        run: pip install dvc[gs] pytest cml joblib pandas scikit-learn
+        run: pip install "dvc==3.63.0" pytest cml joblib pandas scikit-learn
     
       - name: Setup DVC
         uses: iterative/setup-dvc@v1
