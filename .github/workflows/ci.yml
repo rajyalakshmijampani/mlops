@@ -48,7 +48,7 @@ jobs:
           dvc pull -r mygcs --force
 
       - name: Run tests
-        run: pytest -v -s tests/test_pipeline.py --uri "$MLFLOW_TRACKING_URI" > report.txt
+        run: pytest -v -s tests/test_pipeline_mlflow.py --uri "$MLFLOW_TRACKING_URI" > report.txt
         
       - name: Set up CML
         uses: iterative/setup-cml@v2
