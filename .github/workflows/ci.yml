@@ -12,6 +12,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+
     steps:
       - uses: actions/checkout@v3
 
@@ -20,14 +23,15 @@ jobs:
         with:
           python-version: '3.10'
         
-      # Install DVC using iterative/setup-dvc
+      # Install DVC
       - uses: iterative/setup-dvc@v1
         with:
           version: 3.63.0
     
-      - name: Install other dependencies
-        run: pip install pytest pandas joblib scikit-learn
-    
+      - name: Install dependencies
+        run: |
+          pip install pytest pandas joblib scikit-learn mlflow
+
       - name: Authenticate GCP
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
@@ -38,13 +42,13 @@ jobs:
           gcloud config set project $PROJECT_ID
           export GOOGLE_APPLICATION_CREDENTIALS=/tmp/key.json
             
-      - name: Pull data & model
+      - name: Pull data via DVC
         run: |
           export GOOGLE_APPLICATION_CREDENTIALS=/tmp/key.json
           dvc pull -r mygcs --force
 
       - name: Run tests
-        run: pytest -v -s tests/test_pipeline.py > report.txt
+        run: pytest -v -s tests/test_pipeline.py --uri "$MLFLOW_TRACKING_URI" > report.txt
         
       - name: Set up CML
         uses: iterative/setup-cml@v2
