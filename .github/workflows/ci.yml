@@ -131,15 +131,10 @@ jobs:
          cluster_name: ${{ secrets.GKE_CLUSTER }}
          location: ${{ secrets.GKE_REGION }}
          project_id: ${{ secrets.PROJECT_ID }}
-        
-      - name: Check container name
-        run: |
-          kubectl get deployment iris-api -o jsonpath='{.spec.template.spec.containers[*].name}'
           
       - name: Deploy new image to GKE
         env:
           IMAGE_URI: ${{ env.IMAGE_URI }}
-          PROJECT_ID: ${{ secrets.PROJECT_ID }}
         run: |
           # Apply manifest if not already present
           kubectl apply -f k8s/deployment.yaml --validate=false || true
