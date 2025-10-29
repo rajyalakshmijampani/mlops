@@ -125,12 +125,13 @@ jobs:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
           PROJECT_ID: ${{ secrets.PROJECT_ID }}
           GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
-          GKE_ZONE: ${{ secrets.GKE_ZONE }}
+          GKE_REGION: ${{ secrets.GKE_REGION }}
         run: |
           echo "$GCP_SA_KEY" > /tmp/key.json
           gcloud auth activate-service-account --key-file=/tmp/key.json
           gcloud config set project $PROJECT_ID
-          gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $PROJECT_ID
+          echo "Fetching credentials for cluster $GKE_CLUSTER in region $GKE_REGION..."
+          gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_REGION --project $PROJECT_ID
 
       - name: Deploy new image to GKE
         env:
