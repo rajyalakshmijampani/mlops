@@ -134,10 +134,11 @@ jobs:
           
       - name: Deploy new image to GKE
         env:
-          IMAGE_URI: ${{ env.IMAGE_URI }}
+          IMAGE_URI: gcr.io/${{ secrets.PROJECT_ID }}/iris-api:latest
+          PROJECT_ID: ${{ secrets.PROJECT_ID }}
         run: |
           # Apply manifest if not already present
-          kubectl apply -f k8s/deployment.yaml --validate=false || true
+          kubectl apply -f k8s/deployment.yaml --validate=false
           # Update deployment image
-          kubectl set image deployment/iris-api iris-api=gcr.io/$PROJECT_ID/iris-api:latest
+          kubectl set image deployment/iris-api iris-api=$IMAGE_URI
           kubectl rollout status deployment/iris-api --timeout=2m
