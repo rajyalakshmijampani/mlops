@@ -10,10 +10,11 @@ on:
   pull_request:
 
 env:
-  IMAGE_NAME: iris-api
-  REGION: ${{ secrets.ARTIFACT_REGION }}
-  REPO: ${{ secrets.ARTIFACT_REPO }}
-  PROJECT_ID: ${{ secrets.PROJECT_ID }}
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  ARTIFACT_REGION: ${{ secrets.ARTIFACT_REGION }}
+  ARTIFACT_REPO: ${{ secrets.ARTIFACT_REPO }}
+  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+  GKE_ZONE: ${{ secrets.GKE_ZONE }}
 
 jobs:
   # ---------------------
@@ -100,12 +101,12 @@ jobs:
 
       - name: Build and Push Docker image
         env:
-          REGION: ${{ secrets.ARTIFACT_REGION }}
+          ARTIFACT_REGION: ${{ secrets.ARTIFACT_REGION }}
           PROJECT_ID: ${{ secrets.PROJECT_ID }}
-          REPO: ${{ secrets.ARTIFACT_REPO }}
+          ARTIFACT_REPO: ${{ secrets.ARTIFACT_REPO }}
           IMAGE_NAME: iris-api
         run: |
-          IMAGE_URI=${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE_NAME}:${GITHUB_SHA}
+          IMAGE_URI=${ARTIFACT_REGION}-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/${IMAGE_NAME}:$latest
           docker build -t $IMAGE_URI .
           docker push $IMAGE_URI
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
@@ -129,16 +130,16 @@ jobs:
         uses: google-github-actions/get-gke-credentials@v2
         with:
          cluster_name: ${{ secrets.GKE_CLUSTER }}
-         location: ${{ secrets.GKE_REGION }}
+         location: ${{ secrets.GKE_ZONE }}
          project_id: ${{ secrets.PROJECT_ID }}
           
       - name: Deploy new image to GKE
         env:
-          IMAGE_URI: gcr.io/${{ secrets.PROJECT_ID }}/iris-api:latest
+          IMAGE_URI: ${{ secrets.ARTIFACT_REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/iris-api:latest
           PROJECT_ID: ${{ secrets.PROJECT_ID }}
         run: |
           # Apply manifest if not already present
           kubectl apply -f k8s/deployment.yaml --validate=false
           # Update deployment image
           kubectl set image deployment/iris-api iris-api=$IMAGE_URI
-          kubectl rollout status deployment/iris-api --timeout=2m
+          kubectl rollout status deployment/iris-api
