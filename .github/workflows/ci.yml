@@ -116,69 +116,69 @@ jobs:
   # Deploy to GKE
   # ---------------------
   deploy:
-      runs-on: ubuntu-latest
-      needs: build
+    runs-on: ubuntu-latest
+    needs: build
 
-      permissions:
-        contents: write
-        pull-requests: write
+    permissions:
+      contents: write
+      pull-requests: write
 
-      steps:
-        - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-        - name: Authenticate to Google Cloud
-          uses: google-github-actions/auth@v2
-          with:
-            credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-        - name: Connect to GKE cluster
-          uses: google-github-actions/get-gke-credentials@v2
-          with:
-            cluster_name: ${{ secrets.GKE_CLUSTER }}
-            location: ${{ secrets.GKE_ZONE }}
-            project_id: ${{ secrets.PROJECT_ID }}
+      - name: Connect to GKE cluster
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ secrets.GKE_CLUSTER }}
+          location: ${{ secrets.GKE_ZONE }}
+          project_id: ${{ secrets.PROJECT_ID }}
 
-        - name: Apply Deployment + HPA
-          env:
-            IMAGE_URI: ${{ secrets.ARTIFACT_REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/iris-api:latest
-          run: |
-            kubectl apply -f k8s/deployment.yaml
-            kubectl set image deployment/iris-api iris-api=$IMAGE_URI
-            kubectl apply -f k8s/hpa.yaml
-            kubectl rollout status deployment/iris-api
+      - name: Apply Deployment + HPA
+        env:
+          IMAGE_URI: ${{ secrets.ARTIFACT_REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/iris-api:latest
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl set image deployment/iris-api iris-api=$IMAGE_URI
+          kubectl apply -f k8s/hpa.yaml
+          kubectl rollout status deployment/iris-api
 
-        - name: Install wrk
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y wrk
+      - name: Install wrk
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wrk
 
-        - name: Get LoadBalancer IP
-          id: get_ip
-          run: |
-            IP=$(kubectl get svc iris-api-svc --output jsonpath='{.status.loadBalancer.ingress[0].ip}')
-            echo "SERVICE_IP=$IP" >> $GITHUB_ENV
+      - name: Get LoadBalancer IP
+        id: get_ip
+        run: |
+          IP=$(kubectl get svc iris-api-svc --output jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          echo "SERVICE_IP=$IP" >> $GITHUB_ENV
 
-        - name: Load Test (autoscaling enabled)
-          run: |
-            echo "### Test: HPA enabled (maxPods=3)" > wrk_report.md
-            wrk -t12 -c1000 -d20s http://$SERVICE_IP/predict --script=wrk/post.lua >> wrk_report.md
-            echo "\nPods after test:" >> wrk_report.md
-            kubectl get pods >> wrk_report.md
-            echo "\nHPA status:" >> wrk_report.md
-            kubectl get hpa >> wrk_report.md
+      - name: Load Test (autoscaling enabled)
+        run: |
+          echo "### Test: HPA enabled (maxPods=3)" > wrk_report.md
+          wrk -t12 -c1000 -d20s http://$SERVICE_IP/predict --script=wrk/post.lua >> wrk_report.md
+          echo "\nPods after test:" >> wrk_report.md
+          kubectl get pods >> wrk_report.md
+          echo "\nHPA status:" >> wrk_report.md
+          kubectl get hpa >> wrk_report.md
 
-        - name: Restrict scaling to 1 pod and test again
-          run: |
-            kubectl scale deployment iris-api --replicas=1
-            kubectl delete hpa iris-api-hpa --ignore-not-found
-            echo "### Test: Forced single pod (maxPods=1)" >> wrk_report.md
-            wrk -t12 -c2000 -d20s http://$SERVICE_IP/predict --script=wrk/post.lua >> wrk_report.md
-            echo "\nPods after forced single pod test:" >> wrk_report.md
-            kubectl get pods >> wrk_report.md
+      - name: Restrict scaling to 1 pod and test again
+        run: |
+          kubectl scale deployment iris-api --replicas=1
+          kubectl delete hpa iris-api-hpa --ignore-not-found
+          echo "### Test: Forced single pod (maxPods=1)" >> wrk_report.md
+          wrk -t12 -c2000 -d20s http://$SERVICE_IP/predict --script=wrk/post.lua >> wrk_report.md
+          echo "\nPods after forced single pod test:" >> wrk_report.md
+          kubectl get pods >> wrk_report.md
 
-        - name: Post Load Test Results to PR
-          uses: iterative/setup-cml@v2
-          env:
-            REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          run: |
-            cml comment create wrk_report.md
+      - name: Post Load Test Results to PR
+        uses: iterative/setup-cml@v2
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cml comment create wrk_report.md
