@@ -164,7 +164,7 @@ jobs:
       - name: Load Test (autoscaling enabled)
         run: |
           echo "### Test: HPA enabled (maxPods=3)" > wrk_report.md
-          wrk -t12 -c1000 -d20s http://$SERVICE_IP/predict --script=wrk/post.lua >> wrk_report.md
+          wrk -t12 -c1000 -d120s http://$SERVICE_IP/predict --script=wrk/post.lua >> wrk_report.md
           echo "\nPods after test:" >> wrk_report.md
           kubectl get pods >> wrk_report.md
           echo "\nHPA status:" >> wrk_report.md
