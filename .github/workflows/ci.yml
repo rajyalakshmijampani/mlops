@@ -180,4 +180,5 @@ jobs:
           uses: iterative/setup-cml@v2
           env:
             REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          run: cml comment create wrk_report.md
+          run: | 
+            cml comment create wrk_report.md
