@@ -140,8 +140,11 @@ jobs:
 
       - name: Apply Deployment + HPA
         env:
-          IMAGE_URI: ${{ secrets.ARTIFACT_REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/iris-api:latest
+          ARTIFACT_REGION: ${{ secrets.ARTIFACT_REGION }}
+          PROJECT_ID: ${{ secrets.PROJECT_ID }}
+          ARTIFACT_REPO: ${{ secrets.ARTIFACT_REPO }}
         run: |
+          IMAGE_URI="$ARTIFACT_REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REPO/iris-api:latest"
           kubectl apply -f k8s/deployment.yaml
           kubectl set image deployment/iris-api iris-api=$IMAGE_URI
           kubectl apply -f k8s/hpa.yaml
