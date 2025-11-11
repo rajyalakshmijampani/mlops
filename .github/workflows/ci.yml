@@ -179,9 +179,11 @@ jobs:
           echo "\nPods after forced single pod test:" >> wrk_report.md
           kubectl get pods >> wrk_report.md
 
-      - name: Post Load Test Results to PR
+      - name: Setup CML
         uses: iterative/setup-cml@v2
+
+      - name: Post Load Test Results to PR
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: | 
+        run: |
           cml comment create wrk_report.md
