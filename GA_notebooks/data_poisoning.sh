@@ -14,7 +14,7 @@ total_samples=$(($(wc -l < data.csv) - 1))
 
 echo "Total samples in data: $total_samples"
 
-POISON_LEVELS=("0" "0.05" "0.10" "0.50")
+POISON_LEVELS=("0.05" "0.10" "0.50")
 
 for p in "${POISON_LEVELS[@]}"; do
     echo "---- Applying poisoning: $p ----"
